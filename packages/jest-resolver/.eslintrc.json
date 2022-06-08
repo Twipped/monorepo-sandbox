@@ -1,0 +1,5 @@
+{
+  "extends": [
+    "@zenbusiness/eslint-config/node-cjs"
+  ]
+}

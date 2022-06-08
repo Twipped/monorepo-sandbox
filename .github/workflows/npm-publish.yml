@@ -1,0 +1,55 @@
+name: 'publish'
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: "0"
+          token: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+
+      - name: Configure installing from ZenBusiness Private Github Packages
+        run: npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
+
+      - name: Install node dependencies
+        run: npm ci
+
+      - name: Test packages
+        run: npm run test
+
+      - name: Build Docs
+        run: npm run docs
+
+      - name: Configure publishing to ZenBusiness Private Github Packages
+        run: |
+          npm config set '@zenbusiness:registry' 'https://npm.pkg.github.com/'
+          npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Configure CI Git User
+        run: |
+          git config --local user.email actions@github.com
+          git config --local user.name GitHub Actions
+
+      - name: Publish packages
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+        run: npm run release
+

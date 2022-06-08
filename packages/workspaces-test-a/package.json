@@ -1,0 +1,54 @@
+{
+  "name": "@zenbusiness/workspaces-test-a",
+  "version": "1.0.0",
+  "description": "First workspace test package",
+  "main": "index.js",
+  "author": "Jocelyn Badgley <jocelyn.badgley@zenbusiness.com>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "style": "npm run lint-fix",
+    "lint": "eslint --ext js,cjs,mjs .",
+    "lint-fix": "eslint --ext js,cjs,mjs --fix .",
+    "test": "npm run lint && npm run test-unit",
+    "test-unit": "NODE_ENV=test jest --coverage --passWithNoTests",
+    "prepublish": "rollup -c"
+  },
+  "engines": {
+    "node": "^16.13.0"
+  },
+  "exports": {
+    "import": "./index.mjs",
+    "require": "./index.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zenbusiness/monorepo-sandbox.git",
+    "directory": "packages/a"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
+    "automock": false,
+    "clearMocks": true,
+    "collectCoverage": false,
+    "resolver": "<rootDir>/../jest-resolver",
+    "moduleNameMapper": {
+      "^@zenbusiness/(.*)$" : "<rootDir>/../$1/"
+    }
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@zenbusiness/eslint-config": "^6.1.0",
+    "eslint": "^8.12.0",
+    "jest": "^27.5.1",
+    "jsdoc-to-markdown": "^7.1.1",
+    "rollup": "^2.75.6"
+  }
+}
