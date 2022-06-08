@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "packages/a": {},
+    "packages/b": {},
+    "packages/c": {},
+    "packages/jest-resolver": {}
+  },
+  "plugins": ["node-workspace"]
+}

@@ -1,0 +1,36 @@
+name: NPM Test
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**.jsx?"
+      - "**.json"
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Configure installing from ZenBusiness Private Github Packages
+        run: npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
+
+      - name: Install dependencies from npm
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Test packages
+        run: npm run test

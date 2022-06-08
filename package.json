@@ -1,0 +1,33 @@
+{
+  "name": "@zenbusiness/monorepo-sandbox",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Playground for experimenting with nodejs monorepo tools",
+  "author": "Jocelyn Badgley <jocelyn.badgley@zenbusiness.com>",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/zenbusiness/monorepo-sandbox.git"
+  },
+  "engines": {
+    "node": ">=16.13.0"
+  },
+  "workspaces": [
+    "./packages/*",
+    "jest-resolver"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "release": {
+    "extends": "@zenbusiness/semantic-release-config"
+  },
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "docs": "npm run docs --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "prepublishOnly": "echo \"Error: 'npm publish' is not supported on this repository, use 'npm run release'.\" && exit 1"
+  },
+  "devDependencies": {
+  }
+}
