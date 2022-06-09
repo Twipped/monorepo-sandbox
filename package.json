@@ -30,6 +30,6 @@
   },
   "devDependencies": {
     "@zenbusiness/semantic-release-config": "^1.2.0",
-    "multi-semantic-release": "2.13.0"
+    "@qiwi/multi-semantic-release": "^6.4.0"
   }
 }
