@@ -26,11 +26,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
 
-      - name: Install Node.js dependencies
+      - name: Install dependencies from npm
         run: npm ci
 
-      - name: Run test script
-        run: npm test
+      - name: Build packages
+        run: npm run build
 
-      - name: Check docs can build
-        run: npm run docs
+      - name: Test packages
+        run: npm run test
