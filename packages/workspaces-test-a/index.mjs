@@ -407,6 +407,7 @@ export function lt(a, b) {
  */
 export default function hash(input) {
   if (!input) return 0;
+
   if (!isString(input)) {
     if (isObject(input)) {
       if (input.valueOf !== Object.prototype.valueOf) input = input.valueOf();
