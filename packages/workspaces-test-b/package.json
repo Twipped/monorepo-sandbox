@@ -1,6 +1,6 @@
 {
   "name": "@zenbusiness/workspaces-test-b",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Second workspace test package",
   "main": "index.js",
   "author": "Jocelyn Badgley <jocelyn.badgley@zenbusiness.com>",
@@ -45,6 +45,6 @@
     "jsdoc-to-markdown": "^7.1.1"
   },
   "dependencies": {
-    "@zenbusiness/workspaces-test-a": "1.0.0"
+    "@zenbusiness/workspaces-test-a": "1.1.0"
   }
 }
