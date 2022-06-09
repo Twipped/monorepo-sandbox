@@ -1,5 +1,5 @@
 {
-  "name": "jest-resolver",
+  "name": "@zenbusiness/workspaces-test-jest-resolver",
   "version": "1.0.0",
   "description": "",
   "main": "resolver.cjs",
@@ -7,7 +7,6 @@
     ".": "./resolver.cjs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
