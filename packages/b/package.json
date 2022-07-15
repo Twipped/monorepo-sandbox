@@ -32,14 +32,13 @@
     "automock": false,
     "clearMocks": true,
     "collectCoverage": false,
-    "resolver": "@twipped/jest-resolver",
+    "resolver": "../jest-resolver",
     "moduleNameMapper": {
       "^@twipped/monorepo-test-(.*)$": "<rootDir>/../$1/"
     }
   },
   "devDependencies": {
     "@twipped/eslint-config": "^7.3.2",
-    "@twipped/jest-resolver": "*",
     "eslint": "^8.12.0",
     "jest": "^27.5.1",
     "jsdoc-to-markdown": "^7.1.1"
