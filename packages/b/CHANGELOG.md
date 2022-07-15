@@ -1,3 +1,14 @@
+## @twipped/monorepo-test-b [2.0.0](https://github.com/twipped/monorepo-sandbox/compare/@twipped/monorepo-test-b@1.0.0...@twipped/monorepo-test-b@2.0.0) (2022-07-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* RELEASE DAMMIT
+
+### Features
+
+* RELEASE DAMMIT ([ba06975](https://github.com/twipped/monorepo-sandbox/commit/ba069750a88a7cba05af21314b006f3e2d09436b))
+
 ## @twipped/monorepo-test-b 1.0.0 (2022-07-15)
 
 
