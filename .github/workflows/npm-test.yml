@@ -11,6 +11,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      packages: read
+      contents: read
+      pull-requests: read
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
