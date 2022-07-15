@@ -1,6 +1,6 @@
 {
   "name": "@twipped/monorepo-test-b",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Second workspace test package",
   "main": "index.js",
   "author": "Jocelyn Badgley <jocelyn.badgley@twipped.com>",
@@ -44,6 +44,6 @@
     "jsdoc-to-markdown": "^7.1.1"
   },
   "dependencies": {
-    "@twipped/monorepo-test-a": "*"
+    "@twipped/monorepo-test-a": "1.1.0"
   }
 }
