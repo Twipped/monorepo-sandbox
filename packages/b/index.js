@@ -29,3 +29,4 @@ module.exports = exports = function merge (...sources) {
   }
   return result;
 };
+
