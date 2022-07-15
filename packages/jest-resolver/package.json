@@ -26,5 +26,8 @@
   "scripts": {},
   "dependencies": {
     "enhanced-resolve": "^5.9.3"
+  },
+  "devDependencies": {
+    "jest": "^28.1.3"
   }
 }
