@@ -1,0 +1,50 @@
+{
+  "name": "@twipped/monorepo-test-b",
+  "version": "0.0.0",
+  "description": "Second workspace test package",
+  "main": "index.js",
+  "author": "Jocelyn Badgley <jocelyn.badgley@twipped.com>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "style": "npm run lint-fix",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
+    "test": "npm run lint && npm run test-unit",
+    "test-unit": "NODE_ENV=test jest --coverage --passWithNoTests"
+  },
+  "engines": {
+    "node": "^16.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/twipped/monorepo-sandbox.git",
+    "directory": "packages/a"
+  },
+  "publishConfig": {
+    "@twipped:registry": "https://npm.pkg.github.com"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
+    "automock": false,
+    "clearMocks": true,
+    "collectCoverage": false,
+    "resolver": "@twipped/jest-resolver",
+    "moduleNameMapper": {
+      "^@twipped/monorepo-test-(.*)$": "<rootDir>/../$1/"
+    }
+  },
+  "devDependencies": {
+    "@twipped/eslint-config": "^7.3.2",
+    "@twipped/jest-resolver": "*",
+    "eslint": "^8.12.0",
+    "jest": "^27.5.1",
+    "jsdoc-to-markdown": "^7.1.1"
+  },
+  "dependencies": {
+    "@twipped/monorepo-test-a": "*"
+  }
+}
