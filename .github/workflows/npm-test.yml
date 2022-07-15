@@ -1,0 +1,31 @@
+name: Node Test
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**.jsx?"
+      - "**.json"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Install dependencies from npm
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Test packages
+        run: npm run test

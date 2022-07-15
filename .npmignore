@@ -1,0 +1,4 @@
+*.test.js
+**/__mocks__/**
+**/__tests__/**
+.github

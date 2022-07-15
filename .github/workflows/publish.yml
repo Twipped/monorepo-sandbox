@@ -1,0 +1,46 @@
+name: 'Publish Packages'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-package:
+    if: "contains(github.event.head_commit.message, '[release]') || github.event_name == 'workflow_dispatch'"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Configure CI Git User
+        run: |
+          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config --local user.name 'github-actions[bot]'
+
+      - name: Install dependencies from npm
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Test packages
+        run: npm run test
+
+      - name: Build Docs
+        run: npm run docs
+
+      - name: Publish packages
+        run: npm run release
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
