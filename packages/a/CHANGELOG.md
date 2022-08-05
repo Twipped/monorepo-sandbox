@@ -10,3 +10,7 @@
 ### Features
 
 * **@twipped/monorepo-test-a:** Breaking change ([0d1a5e0](https://www.github.com/Twipped/monorepo-sandbox/commit/0d1a5e004142ea6a3e5161c6d9873cbc0f2abc85))
+
+---
+
+## @twipped/monorepo-test-a 1.0.0 (2022-07-15)
