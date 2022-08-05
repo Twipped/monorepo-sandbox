@@ -1,6 +1,6 @@
 {
   "name": "@zenbusiness/workspaces-test-b",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "Second workspace test package",
   "main": "index.js",
   "author": "Jocelyn Badgley <jocelyn.badgley@zenbusiness.com>",
