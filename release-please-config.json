@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "packages/b": {},
+    "packages/jest-resolver": {},
+    "packages/a": {}
+  },
+  "plugins": ["node-workspace"],
+  "bootstrap-sha": "801db501a20e9dd63e26d91584672df438b73a52"
+}

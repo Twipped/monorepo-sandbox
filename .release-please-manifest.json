@@ -1,0 +1,5 @@
+{
+  "packages/a": "1.1.0",
+  "packages/b": "2.0.0",
+  "packages/jest-resolver": "1.0.0"
+}

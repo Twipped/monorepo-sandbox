@@ -1,0 +1,53 @@
+name: "Release, Please!"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  packages: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  releasePlease:
+    runs-on: ubuntu-latest
+    outputs:
+      releases: ${{ steps.release.outputs.releases_created }}
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - uses: google-github-actions/release-please-action@v2
+        id: release
+        with:
+          command: manifest
+          token: ${{secrets.GITHUB_TOKEN}}
+          default-branch: main
+
+      - name: Echo results
+        run: echo "${{ toJSON(steps.release.outputs) }}"
+
+  publish:
+    runs-on: ubuntu-latest
+    name: Publish Packages
+    if: ${{ needs.releasePlease.outputs.releases != '[]' && needs.changeFinder.outputs.releases != '' }}
+    needs: releasePlease
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Install dependencies from npm
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build --if-present
+
+      - name: Test packages
+        run: npm run test --if-present
