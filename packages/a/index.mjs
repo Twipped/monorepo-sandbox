@@ -227,8 +227,6 @@ export const isIterator = (input) => isObject(input) && isFunction(input.next);
  */
 export const isPromise = (input) => isObject(input) && isFunction(input.then);
 
-const GeneratorFunction = (function* G () { yield undefined; }).constructor;
-
 /**
  * Tests if a given value is iterable using for..of or Array.from()
  *
