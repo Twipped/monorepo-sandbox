@@ -1,6 +1,6 @@
 {
   "name": "@zenbusiness/workspaces-test-c",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Third workspace test package",
   "main": "index.js",
   "devDependencies": {},
