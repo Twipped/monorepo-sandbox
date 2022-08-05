@@ -32,7 +32,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     name: Publish Packages
-    if: ${{ needs.releasePlease.outputs.releases != '[]' && needs.changeFinder.outputs.releases != '' }}
+    if: ${{ needs.releasePlease.outputs.paths_released != '[]' && needs.changeFinder.outputs.paths_released != '' }}
     needs: releasePlease
     strategy:
       fail-fast: false
