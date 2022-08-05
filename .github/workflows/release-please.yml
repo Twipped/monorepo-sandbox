@@ -1,0 +1,108 @@
+name: "Release, Please!"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  changeFinder:
+    name: Detect package releases
+    runs-on: ubuntu-latest
+    outputs:
+      nodePaths: ${{ steps.interrogate.outputs.nodePaths }}
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+          token: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+
+      - name: Examine packages for release.
+        id: interrogate
+        uses: actions/github-script@v6
+        with:
+            github-token: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+            script: |
+              const {execSync} = require('child_process');
+              const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+              const branch = process.env.GITHUB_REF.split('/').pop();
+              const latestRelease = await github.rest.repos.getLatestRelease({
+                owner,
+                repo
+              });
+              console.log(`latest release: ${JSON.stringify(latestRelease.data)}`);
+              execSync('git pull --tags');
+              execSync(`git reset --hard ${latestRelease.data.tag_name}`);
+              const status = execSync(`git diff --name-only origin/${branch}`, { encoding: 'utf-8'});
+              console.log(status);
+              const changes = status.split('\n');
+              let nodePaths = new Set();
+              for (const change of changes) {
+                if (change.startsWith('packages/')) {
+                    const library = change.split('/')[1];
+                    nodePaths.add(library);
+                };
+              }
+              nodePaths = Array.from(nodePaths);
+              console.log(`::set-output name=nodePaths::${JSON.stringify(nodePaths)}`);
+
+  release-please-release:
+    runs-on: ubuntu-latest
+    needs: changeFinder
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{fromJson(needs.changeFinder.outputs.nodePaths)}}
+    steps:
+      - name: Tag new release
+        uses: google-github-actions/release-please-action@v3
+        id: tag-release
+        with:
+          path: packages/${{ matrix.package }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+          monorepo-tags: true
+          package-name: ${{ matrix.package }}
+          command: github-release
+
+      - name: Checkout codebase
+        uses: actions/checkout@v2
+        if: ${{ steps.tag-release.outputs.releases_created }}
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v1
+        if: ${{ steps.tag-release.outputs.releases_created }}
+        with:
+          node-version: 16
+          registry-url: 'https://npm.pkg.github.com/'
+
+      - name: Publish package
+        if: ${{ steps.tag-release.outputs.releases_created }}
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+        run: |
+          cd packages/${{ matrix.package }}
+          npm install
+          npm publish
+
+  release-pr:
+    runs-on: ubuntu-latest
+    needs:
+      - changeFinder
+      - release-please-release
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{fromJson(needs.changeFinder.outputs.nodePaths)}}
+    steps:
+      - name: Publish release
+        uses: google-github-actions/release-please-action@v3
+        id: release-please
+        with:
+           path: packages/${{ matrix.package }}
+           token: ${{ secrets.GITHUB_TOKEN }}
+           release-type: node
+           package-name: ${{ matrix.package }}
+           monorepo-tags: true
+           command: release-pr
