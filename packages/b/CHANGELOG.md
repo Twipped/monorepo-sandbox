@@ -6,6 +6,20 @@
   * dependencies
     * @twipped/monorepo-test-a bumped from ^2.0.0 to ^3.0.0
 
+## [2.0.3](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-b-v2.0.2...monorepo-test-b-v2.0.3) (2022-08-05)
+
+
+### Bug Fixes
+
+* **monorepo-test-b:** Boop ([fbb47ec](https://github.com/Twipped/monorepo-sandbox/commit/fbb47ece59f61a34594807131fb66de9c10fe2ef))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twipped/monorepo-test-a bumped from ^3.0.0 to ^3.0.1
+
 ### [2.0.1](https://www.github.com/Twipped/monorepo-sandbox/compare/monorepo-test-b-v2.0.0...monorepo-test-b-v2.0.1) (2022-08-05)
 
 
