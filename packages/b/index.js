@@ -18,7 +18,9 @@ module.exports = exports = function merge (...sources) {
     for (const [ key, value ] of Object.entries(source)) {
       if (isObject(value)) {
         if (isObject(result[key])) {
+
           result[key] = merge(result[key], value);
+
         } else {
           result[key] = merge(value);
         }
