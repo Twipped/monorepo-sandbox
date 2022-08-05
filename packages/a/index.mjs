@@ -230,16 +230,6 @@ export const isPromise = (input) => isObject(input) && isFunction(input.then);
 const GeneratorFunction = (function* G () { yield undefined; }).constructor;
 
 /**
- * Tests if a given value is a Generator function
- *
- * @function isNumber
- * @param {any} input Value to test
- * @returns {boolean}
- * @category Types
- */
-export const isGenerator = (input) => input instanceof GeneratorFunction;
-
-/**
  * Tests if a given value is iterable using for..of or Array.from()
  *
  * @param   {any}  input
