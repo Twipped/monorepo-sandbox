@@ -14,11 +14,12 @@ jobs:
   releasePlease:
     runs-on: ubuntu-latest
     outputs:
-      releases: ${{ steps.release.outputs.releases_created }}
+      releases_create: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
     env:
       NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
-      - uses: google-github-actions/release-please-action@v2
+      - uses: google-github-actions/release-please-action@v3
         id: release
         with:
           command: manifest
@@ -26,13 +27,17 @@ jobs:
           default-branch: main
 
       - name: Echo results
-        run: echo "${{ toJSON(steps.release.outputs) }}"
+        run: echo << EOF ${{ toJSON(steps.release.outputs) }} EOF
 
   publish:
     runs-on: ubuntu-latest
     name: Publish Packages
     if: ${{ needs.releasePlease.outputs.releases != '[]' && needs.changeFinder.outputs.releases != '' }}
     needs: releasePlease
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{fromJson(needs.releasePlease.outputs.paths_released)}}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -47,7 +52,7 @@ jobs:
         run: npm ci
 
       - name: Build packages
-        run: npm run build --if-present
+        run: npm run build --workspace=${{ matrix.package }} --if-present
 
-      - name: Test packages
-        run: npm run test --if-present
+      - name: Publish to Registry
+        run: npm publish --workspace=${{ matrix.package }}
