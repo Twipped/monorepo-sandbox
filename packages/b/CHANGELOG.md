@@ -6,6 +6,12 @@
   * dependencies
     * @twipped/monorepo-test-a bumped from ^2.0.0 to ^3.0.0
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twipped/monorepo-test-a bumped from ^3.0.1 to ^3.0.2
+
 ## [2.0.3](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-b-v2.0.2...monorepo-test-b-v2.0.3) (2022-08-05)
 
 

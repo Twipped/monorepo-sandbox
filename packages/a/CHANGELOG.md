@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-a-v3.0.1...monorepo-test-a-v3.0.2) (2022-08-06)
+
+
+### Bug Fixes
+
+* **monorepo-test-a:** Hurk ([216f392](https://github.com/Twipped/monorepo-sandbox/commit/216f39262143059fe05c7f9aab1522efd5f18511))
+
 ## [3.0.1](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-a-v3.0.0...monorepo-test-a-v3.0.1) (2022-08-05)
 
 
