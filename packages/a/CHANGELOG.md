@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-a-v3.0.2...monorepo-test-a-v3.0.3) (2022-08-06)
+
+
+### Bug Fixes
+
+* **a:** Once more into the breach. ([c180d78](https://github.com/Twipped/monorepo-sandbox/commit/c180d78514b21ab749131d7f8151216b8ef93707))
+
 ## [3.0.2](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-a-v3.0.1...monorepo-test-a-v3.0.2) (2022-08-06)
 
 
