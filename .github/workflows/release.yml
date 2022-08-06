@@ -25,7 +25,11 @@ jobs:
           default-branch: main
 
       - name: Echo results
-        run: echo << EOF ${{ toJSON(steps.release.outputs) }} EOF
+        run: |
+          read -r -d '' RESULT << EOM
+          ${{ toJSON(steps.release.outputs) }}
+          EOM
+          echo "$RESULT"
 
   publish:
     runs-on: ubuntu-latest
