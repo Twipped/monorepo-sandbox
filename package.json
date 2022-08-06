@@ -26,21 +26,9 @@
     "test": "npm run test --workspaces --if-present",
     "docs": "npm run docs --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
-    "release": "multi-semantic-release --deps.bump=inherit",
-    "release-dry": "multi-semantic-release --no-ci --dry-run --branches='*' --deps.bump=inherit",
     "prepublishOnly": "echo \"Error: 'npm publish' is not supported on this repository, use 'npm run release'.\" && exit 1"
   },
   "devDependencies": {
-    "@qiwi/multi-semantic-release": "^6.4.0",
-    "@semantic-release/commit-analyzer": "^9.0.2",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^8.0.4",
-    "@semantic-release/npm": "^9.0.1",
-    "@semantic-release/release-notes-generator": "^10.0.3",
-    "@twipped/semrel-config": "^1.0.0",
-    "conventional-changelog-conventionalcommits": "^5.0.0"
-  },
-  "dependencies": {
-    "@semantic-release/changelog": "^6.0.1"
+
   }
 }
