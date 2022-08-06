@@ -1,4 +1,4 @@
-name: Semantic Release Dry-Run
+name: Calculate Expected Release
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
 
 jobs:
   expected-release:
+    name: Calculate Expected Release
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -35,30 +36,26 @@ jobs:
           cache: 'npm'
           registry-url: https://npm.pkg.github.com/
 
-      - name: Configure CI Git User
-        run: |
-          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git config --local user.name 'github-actions[bot]'
+      # - name: Configure CI Git User
+      #   run: |
+      #     git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      #     git config --local user.name 'github-actions[bot]'
 
-      - name: Install dependencies from npm
-        run: npm ci
+      # - name: Install dependencies from npm
+      #   run: npm ci
 
-      - name: Build packages
-        run: npm run build
+      # - name: Build packages
+      #   run: npm run build
 
-      - name: Build Docs
-        run: npm run docs
+      # - name: Build Docs
+      #   run: npm run docs
 
-      - name: Dryrun publish
+      - name: Calculate Release
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           echo 'dryrun<<EOF' >> $GITHUB_ENV
-          npx release-please manifest \
-            --dry-run
-            --token=$GITHUB_TOKEN \
-            --repo-url=${{ github.repository }} \
-            --release-type=node 2>&1 >> $GITHUB_ENV
+          npx release-please manifest-pr --dry-run --token="$GITHUB_TOKEN" --repo-url="${{ github.repository }}" 2>&1 || true >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
       - name: Echo Result
