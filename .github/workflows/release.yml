@@ -26,9 +26,10 @@ jobs:
 
       - name: Echo results
         run: |
-          read -r -d '' RESULT << EOM
+          RESULT=$(cat << EOM
           ${{ toJSON(steps.release.outputs) }}
           EOM
+          )
           echo "$RESULT"
 
   publish:
