@@ -32,8 +32,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     name: Publish Packages
-    if: ${{ needs.releasePlease.outputs.paths_released != '[]' && needs.changeFinder.outputs.paths_released != '' }}
     needs: releasePlease
+    if: ${{ needs.releasePlease.outputs.paths_released != '[]' && needs.releasePlease.outputs.paths_released != '' }}
     strategy:
       fail-fast: false
       matrix:
