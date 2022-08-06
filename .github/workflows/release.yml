@@ -16,8 +16,6 @@ jobs:
     outputs:
       releases_create: ${{ steps.release.outputs.releases_created }}
       paths_released: ${{ steps.release.outputs.paths_released }}
-    env:
-      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
       - uses: google-github-actions/release-please-action@v3
         id: release
@@ -38,6 +36,8 @@ jobs:
       fail-fast: false
       matrix:
         package: ${{fromJson(needs.releasePlease.outputs.paths_released)}}
+    env:
+      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
