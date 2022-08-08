@@ -156,7 +156,7 @@ export const isSet = (input) => input instanceof Set;
  * @returns {boolean}
  * @category Types
  */
-export const isDate = (input) => input instanceof Date;
+export const isDate = (input) => (input instanceof Date);
 
 /**
  * Tests if a given value is a Regular Expression object
