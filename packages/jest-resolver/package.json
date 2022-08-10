@@ -1,0 +1,23 @@
+{
+  "name": "@zenbusiness/monorepo-sandbox-jest-resolver",
+  "version": "0.0.0",
+  "description": "",
+  "main": "resolver.cjs",
+  "exports": {
+    ".": "./resolver.cjs"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zenbusiness/monorepo-sandbox.git"
+  },
+  "author": "Jocelyn Badgley <jocelyn.badgley@zenbusiness.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/zenbusiness/monorepo-sandbox/issues"
+  },
+  "homepage": "https://github.com/zenbusiness/monorepo-sandbox#readme",
+  "dependencies": {
+    "enhanced-resolve": "^5.9.3"
+  }
+}
