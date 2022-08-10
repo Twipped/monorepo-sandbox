@@ -18,17 +18,12 @@ jobs:
     outputs:
       releases_create: ${{ steps.release.outputs.releases_created }}
       paths_released: ${{ steps.release.outputs.paths_released }}
+      packages: ${{ steps.releaseData.outputs.result }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-          token: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
-
-      - name: Configure CI Git User
-        run: |
-          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git config --local user.name 'github-actions[bot]'
+      # - name: Configure CI Git User
+      #   run: |
+      #     git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      #     git config --local user.name 'github-actions[bot]'
 
       - uses: google-github-actions/release-please-action@v3
         id: release
@@ -45,17 +40,71 @@ jobs:
           )
           echo "$RESULT"
 
+      - name: Dump context
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log(${{ toJSON(steps.release.outputs) }});
+
+      - name: Make list of releases for downstream
+        id: releaseData
+        if: ${{ steps.release.outputs.paths_released != '[]' && steps.release.outputs.paths_released != '' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const paths_released = ${{ steps.release.outputs.paths_released }} || [];
+            const release = ${{ toJSON(steps.release.outputs) }};
+            const packages = [];
+            for (const releasePath of paths_released) {
+              const tag = release[`${releasePath}--tag_name`];
+              const version = release[`${releasePath}--version`];
+              const [name] = String(release[`${releasePath}--name`]).split(':');
+
+              packages.push({
+                path: releasePath,
+                name,
+                tag,
+                version
+              });
+            }
+            console.log(packages);
+            return packages;
+
+  test:
+    runs-on: ubuntu-latest
+    name: Output outputs
+    needs: makeRelease
+    if: ${{ needs.makeRelease.outputs.packages != '[]' && needs.makeRelease.outputs.packages != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.makeRelease.outputs.packages) }}
+
+    steps:
+      - name: Echo packages
+        run: |
+          RESULT=$(cat << EOM
+          path: ${{ matrix.package.path }}
+          name: ${{ matrix.package.name }}
+          packageName: ${{ matrix.package.packageName }}
+          tag: ${{ matrix.package.tag }}
+          version: ${{ matrix.package.version }}
+          EOM
+          )
+          echo "$RESULT"
+
   publish:
     runs-on: ubuntu-latest
     name: Publish Packages
     needs: makeRelease
 
+    # if: false
     if: ${{ needs.makeRelease.outputs.paths_released != '[]' && needs.makeRelease.outputs.paths_released != '' }}
 
     strategy:
       fail-fast: false
       matrix:
-        package: ${{fromJson(needs.makeRelease.outputs.paths_released)}}
+        package: ${{ fromJson(needs.makeRelease.outputs.packages) }}
 
     env:
       PROJECT_ID: zen-dev-166315
@@ -63,16 +112,23 @@ jobs:
       GAR_REPOSITORY: zen-npm-packages
 
     steps:
+      - name: Echo package info
+        run: |
+          RESULT=$(cat << EOM
+          path: ${{ matrix.package.path }}
+          name: ${{ matrix.package.name }}
+          packageName: ${{ matrix.package.packageName }}
+          tag: ${{ matrix.package.tag }}
+          version: ${{ matrix.package.version }}
+          EOM
+          )
+          echo "$RESULT"
+
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: "0"
           token: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
-
-      - name: Get file safe package name
-        run: |
-          PACKAGE_NAME=$(npm run env --workspace=${{ matrix.package }} | sed -n '/npm_package_name/{s/.*=@//;p;}' | sed -e 's/[^A-Za-z0-9._-]/-/g')
-          echo PACKAGE_NAME=${PACKAGE_NAME} >> $GITHUB_ENV
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -80,25 +136,32 @@ jobs:
           node-version: 16
           cache: npm
 
+      - name: Configure installing from ZenBusiness Private Github Packages
+        run: npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
+
+      - name: Install dependencies from npm
+        run: npm ci --workspace=${{ matrix.package.path }}
+
+      - name: Build packages
+        run: npm run build --workspace=${{ matrix.package.path }} --if-present
+
+    # Publish to Github Registry
+
       - name: Configure publishing to ZenBusiness Private Github Packages
         run: |
           npm config set '@zenbusiness:registry' 'https://npm.pkg.github.com/'
           npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
-          NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Install dependencies from npm
-        run: npm ci --workspace=${{ matrix.package }}
-
-      - name: Build packages
-        run: npm run build --workspace=${{ matrix.package }} --if-present
-
-    # Publish to Github Registry
-
-      # - name: Publish to Github Registry
-      #   run: npm publish --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+      - name: Publish to Github Registry
+        run: npm publish --workspace=${{ matrix.package.path }} --registry='https://npm.pkg.github.com/'
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+          NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
 
     # Authenticate with GCP and publish to Google Registry
 
@@ -128,14 +191,25 @@ jobs:
 
       - name: Publish to ZenBusiness Google Cloud npm artifact registry
         run: |
-          npm publish --workspace=${{ matrix.package }}
+          npm publish --workspace=${{ matrix.package.path }}
 
-      - name: Upload the build artifact fpr debug
+      - name: Upload the build artifact for debug
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PACKAGE_NAME }}
+          name: ${{ matrix.package.tag }}
           path: |
             *
             !node_modules/*
           retention-days: 1
+
+      - name: Rollback Release if publish failed
+        if: failure()
+        uses: author/action-rollback@stable
+        with:
+          # Using a tag name
+          tag: ${{ matrix.package.tag }}
+          #  If the release does not exist but the tag does, setting this to true will remove the tag.
+          delete_orphan_tag: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
