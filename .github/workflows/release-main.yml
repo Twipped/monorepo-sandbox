@@ -9,6 +9,7 @@ permissions:
   packages: write
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   releasePlease:
