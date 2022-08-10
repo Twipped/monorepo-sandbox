@@ -38,13 +38,13 @@
     }
   },
   "devDependencies": {
-    "@zenbusiness/eslint-config": "^6.1.0",
+    "@zenbusiness/eslint-config": "^7.0.0",
     "eslint": "^8.12.0",
     "jest": "^27.5.1",
-    "@zenbusiness/workspaces-test-jest-resolver": "*",
+    "@zenbusiness/monorepo-sandbox-jest-resolver": "*",
     "jsdoc-to-markdown": "^7.1.1"
   },
   "dependencies": {
-    "@zenbusiness/workspaces-test-a": "*"
+    "@zenbusiness/monorepo-sandbox-a": "*"
   }
 }

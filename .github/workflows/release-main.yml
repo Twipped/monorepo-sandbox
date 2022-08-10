@@ -9,9 +9,11 @@ permissions:
   packages: write
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
-  releasePlease:
+  makeRelease:
+    name: Process Commits
     runs-on: ubuntu-latest
     outputs:
       releases_create: ${{ steps.release.outputs.releases_created }}
@@ -46,17 +48,16 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     name: Publish Packages
-    needs: releasePlease
+    needs: makeRelease
 
-    if: ${{ needs.releasePlease.outputs.paths_released != '[]' && needs.releasePlease.outputs.paths_released != '' }}
+    if: ${{ needs.makeRelease.outputs.paths_released != '[]' && needs.makeRelease.outputs.paths_released != '' }}
 
     strategy:
       fail-fast: false
       matrix:
-        package: ${{fromJson(needs.releasePlease.outputs.paths_released)}}
+        package: ${{fromJson(needs.makeRelease.outputs.paths_released)}}
 
     env:
-      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       PROJECT_ID: zen-dev-166315
       GAR_LOCATION: us-central1
       GAR_REPOSITORY: zen-npm-packages
@@ -68,17 +69,39 @@ jobs:
           fetch-depth: "0"
           token: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
 
+      - name: Get file safe package name
+        run: |
+          PACKAGE_NAME=$(npm run env --workspace=${{ matrix.package }} | sed -n '/npm_package_name/{s/.*=@//;p;}' | sed -e 's/[^A-Za-z0-9._-]/-/g')
+          echo PACKAGE_NAME=${PACKAGE_NAME} >> $GITHUB_ENV
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+
       - name: Configure publishing to ZenBusiness Private Github Packages
         run: |
           npm config set '@zenbusiness:registry' 'https://npm.pkg.github.com/'
           npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
 
-      - name: Configure CI Git User
-        run: |
-          git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git config --local user.name 'github-actions[bot]'
+      - name: Install dependencies from npm
+        run: npm ci --workspace=${{ matrix.package }}
 
-      # Auth to GCAR and install
+      - name: Build packages
+        run: npm run build --workspace=${{ matrix.package }} --if-present
+
+    # Publish to Github Registry
+
+      # - name: Publish to Github Registry
+      #   run: npm publish --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+
+    # Authenticate with GCP and publish to Google Registry
+
       - id: auth
         name: 'Authenticate to Google Cloud'
         uses: google-github-actions/auth@v0
@@ -87,34 +110,32 @@ jobs:
           workload_identity_provider: "projects/124977349912/locations/global/workloadIdentityPools/github-actions/providers/github"
           service_account: "sa-github-actions@zen-dev-166315.iam.gserviceaccount.com"
 
-
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
-      - name: Authenticate to Google Cloud
-        run: npx google-artifactregistry-auth
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://npm.pkg.github.com/
-
-      - name: Install dependencies from npm
-        run: npm ci
-
-      - name: Build packages
-        run: npm run build --workspace=${{ matrix.package }} --if-present
-
-      - name: Publish to Registry
-        run: npm publish --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
-
-      - name: Publish to ZenBusiness Google Cloud npm artifact registry
+      - name: Writeout GAR npmrc
         run: |
           gcloud artifacts print-settings npm \
             --project=${{ env.PROJECT_ID }} \
             --repository=${{ env.GAR_REPOSITORY }} \
             --location=${{ env.GAR_LOCATION }} \
             --scope=@zenbusiness > .npmrc
-          npx google-artifactregistry-auth
-          npm publish --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
+          find . -path "packages/*" -type d -exec cp .npmrc {} \;
+
+      - name: Authorize NPM to Publish for Google Cloud
+        run: npx google-artifactregistry-auth
+
+      - name: Publish to ZenBusiness Google Cloud npm artifact registry
+        run: |
+          npm publish --workspace=${{ matrix.package }}
+
+      - name: Upload the build artifact fpr debug
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PACKAGE_NAME }}
+          path: |
+            *
+            !node_modules/*
+          retention-days: 1
