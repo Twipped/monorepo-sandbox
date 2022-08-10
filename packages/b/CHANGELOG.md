@@ -1,5 +1,11 @@
 # Changelog
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @zenbusiness/monorepo-sandbox-a bumped from ^1.0.0 to ^1.1.0
+
 ## 1.0.0 (2022-08-10)
 
 
