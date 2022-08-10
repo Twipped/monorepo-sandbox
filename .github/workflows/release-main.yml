@@ -95,10 +95,10 @@ jobs:
 
     # Publish to Github Registry
 
-      # - name: Publish to Github Registry
-      #   run: npm publish --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+      - name: Publish to Github Registry
+        run: npm publish --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
 
     # Authenticate with GCP and publish to Google Registry
 
