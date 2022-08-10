@@ -1,6 +1,6 @@
 {
   "name": "@zenbusiness/monorepo-sandbox-b",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Second workspace test package",
   "main": "index.js",
   "author": "Jocelyn Badgley <jocelyn.badgley@zenbusiness.com>",
@@ -41,10 +41,10 @@
     "@zenbusiness/eslint-config": "^7.0.0",
     "eslint": "^8.12.0",
     "jest": "^27.5.1",
-    "@zenbusiness/monorepo-sandbox-jest-resolver": "*",
+    "@zenbusiness/monorepo-sandbox-jest-resolver": "^1.0.0",
     "jsdoc-to-markdown": "^7.1.1"
   },
   "dependencies": {
-    "@zenbusiness/monorepo-sandbox-a": "*"
+    "@zenbusiness/monorepo-sandbox-a": "^1.0.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@zenbusiness/monorepo-sandbox-c",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Third workspace test package",
   "main": "index.js",
   "devDependencies": {},
