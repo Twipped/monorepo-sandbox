@@ -1,6 +1,7 @@
 {
   "packages": {
     "packages/a": {},
+    "packages/b": {},
     "packages/jest-resolver": {}
   },
   "plugins": ["node-workspace"]
