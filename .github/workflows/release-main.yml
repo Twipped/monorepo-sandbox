@@ -20,11 +20,6 @@ jobs:
       paths_released: ${{ steps.release.outputs.paths_released }}
       packages: ${{ steps.releaseData.outputs.result }}
     steps:
-      # - name: Configure CI Git User
-      #   run: |
-      #     git config --local user.email '41898282+github-actions[bot]@users.noreply.github.com'
-      #     git config --local user.name 'github-actions[bot]'
-
       - uses: google-github-actions/release-please-action@v3
         id: release
         with:
@@ -70,28 +65,6 @@ jobs:
             console.log(packages);
             return packages;
 
-  test:
-    runs-on: ubuntu-latest
-    name: Output outputs
-    needs: makeRelease
-    if: ${{ needs.makeRelease.outputs.packages != '[]' && needs.makeRelease.outputs.packages != '' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        package: ${{ fromJson(needs.makeRelease.outputs.packages) }}
-
-    steps:
-      - name: Echo packages
-        run: |
-          RESULT=$(cat << EOM
-          path: ${{ matrix.package.path }}
-          name: ${{ matrix.package.name }}
-          packageName: ${{ matrix.package.packageName }}
-          tag: ${{ matrix.package.tag }}
-          version: ${{ matrix.package.version }}
-          EOM
-          )
-          echo "$RESULT"
 
   publish:
     runs-on: ubuntu-latest
@@ -207,9 +180,7 @@ jobs:
         if: failure()
         uses: author/action-rollback@stable
         with:
-          # Using a tag name
           tag: ${{ matrix.package.tag }}
-          #  If the release does not exist but the tag does, setting this to true will remove the tag.
           delete_orphan_tag: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
