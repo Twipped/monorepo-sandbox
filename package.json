@@ -17,7 +17,7 @@
     "jest-resolver"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://us-central1-npm.pkg.dev/zen-dev-166315/zen-npm-packages/"
   },
   "release": {
     "extends": "@zenbusiness/semantic-release-config"

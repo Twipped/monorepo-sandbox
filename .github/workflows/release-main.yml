@@ -71,7 +71,6 @@ jobs:
     name: Publish Packages
     needs: makeRelease
 
-    # if: false
     if: ${{ needs.makeRelease.outputs.paths_released != '[]' && needs.makeRelease.outputs.paths_released != '' }}
 
     strategy:
@@ -114,11 +113,47 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
 
+    # Authenticate with GCP and publish to Google Registry
+
+      - id: auth
+        name: 'Authenticate to Google Cloud'
+        uses: google-github-actions/auth@v0
+        with:
+          token_format: "access_token"
+          workload_identity_provider: "projects/124977349912/locations/global/workloadIdentityPools/github-actions/providers/github"
+          service_account: "sa-github-actions@zen-dev-166315.iam.gserviceaccount.com"
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      - name: Writeout GAR npmrc
+        run: |
+          gcloud artifacts print-settings npm \
+            --project=${{ env.PROJECT_ID }} \
+            --repository=${{ env.GAR_REPOSITORY }} \
+            --location=${{ env.GAR_LOCATION }} \
+            --scope=@zenbusiness > .npmrc
+          find . -path "packages/*" -type d -exec cp .npmrc {} \;
+
+      - name: Authorize NPM to Publish for Google Cloud
+        run: npx google-artifactregistry-auth
+
+    # Install and build
+
       - name: Install dependencies from npm
         run: npm ci --workspace=${{ matrix.package.path }}
 
       - name: Build packages
         run: npm run build --workspace=${{ matrix.package.path }} --if-present
+
+      - name: Build docs
+        run: npm run docs --workspace=${{ matrix.package.path }} --if-present
+
+    # Publish to GAR
+
+      - name: Publish to ZenBusiness Google Cloud npm artifact registry
+        run: |
+          npm publish --workspace=${{ matrix.package.path }}
 
     # Publish to Github Registry
 
@@ -136,35 +171,16 @@ jobs:
           NPM_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
           NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
 
-    # Authenticate with GCP and publish to Google Registry
+    # Builds Finished
 
-      - id: auth
-        name: 'Authenticate to Google Cloud'
-        uses: google-github-actions/auth@v0
+      - name: Rollback Release if publish failed
+        if: failure()
+        uses: author/action-rollback@stable
         with:
-          token_format: "access_token"
-          workload_identity_provider: "projects/124977349912/locations/global/workloadIdentityPools/github-actions/providers/github"
-          service_account: "sa-github-actions@zen-dev-166315.iam.gserviceaccount.com"
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-
-
-      - name: Writeout GAR npmrc
-        run: |
-          gcloud artifacts print-settings npm \
-            --project=${{ env.PROJECT_ID }} \
-            --repository=${{ env.GAR_REPOSITORY }} \
-            --location=${{ env.GAR_LOCATION }} \
-            --scope=@zenbusiness > .npmrc
-          find . -path "packages/*" -type d -exec cp .npmrc {} \;
-
-      - name: Authorize NPM to Publish for Google Cloud
-        run: npx google-artifactregistry-auth
-
-      - name: Publish to ZenBusiness Google Cloud npm artifact registry
-        run: |
-          npm publish --workspace=${{ matrix.package.path }}
+          tag: ${{ matrix.package.tag }}
+          delete_orphan_tag: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload the build artifact for debug
         if: always()
@@ -175,12 +191,3 @@ jobs:
             *
             !node_modules/*
           retention-days: 1
-
-      - name: Rollback Release if publish failed
-        if: failure()
-        uses: author/action-rollback@stable
-        with:
-          tag: ${{ matrix.package.tag }}
-          delete_orphan_tag: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
