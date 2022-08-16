@@ -1,6 +1,6 @@
 {
   "name": "@zenbusiness/monorepo-sandbox-a",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "First workspace test package",
   "main": "index.js",
   "author": "Jocelyn Badgley <jocelyn.badgley@zenbusiness.com>",
