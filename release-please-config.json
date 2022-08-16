@@ -2,8 +2,7 @@
   "packages": {
     "packages/a": {},
     "packages/b": {},
-    "packages/c": {},
-    "packages/jest-resolver": {}
+    "packages/c": {}
   },
   "plugins": ["node-workspace"]
 }

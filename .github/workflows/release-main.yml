@@ -161,6 +161,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.secrets.READ_GH_PKGS_NPM_TOKEN}}
 
+      - run: find . -path "packages/*" -type d -exec cp .npmrc {} \;
+
       - name: Publish to Github Registry
         run: npm publish --workspace=${{ matrix.package.path }} --registry='https://npm.pkg.github.com/'
         env:
@@ -172,7 +174,7 @@ jobs:
 
       - name: Rollback Release if publish failed
         if: failure()
-        uses: author/action-rollback@v1
+        uses: author/action-rollback@master
         with:
           tag: ${{ matrix.package.tag }}
           delete_orphan_tag: true
