@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/zenbusiness/monorepo-sandbox/compare/monorepo-sandbox-a-v2.0.0...monorepo-sandbox-a-v2.0.1) (2022-08-16)
+
+
+### Bug Fixes
+
+* **a:** Release A ([c4151a0](https://github.com/zenbusiness/monorepo-sandbox/commit/c4151a0f2ed2c26566046866ddcd9390d191980a))
+
 ## [2.0.0](https://github.com/zenbusiness/monorepo-sandbox/compare/monorepo-sandbox-a-v1.1.0...monorepo-sandbox-a-v2.0.0) (2022-08-16)
 
 
