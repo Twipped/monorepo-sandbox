@@ -108,11 +108,6 @@ jobs:
           node-version: 16
           cache: npm
 
-      - name: Configure installing from ZenBusiness Private Github Packages
-        run: npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.READ_GH_PKGS_NPM_TOKEN}}
-
     # Authenticate with GCP and publish to Google Registry
 
       - id: auth
@@ -157,12 +152,14 @@ jobs:
 
     # Publish to Github Registry
 
+      - run: rm .npmrc
+
       - name: Configure publishing to ZenBusiness Private Github Packages
         run: |
           npm config set '@zenbusiness:registry' 'https://npm.pkg.github.com/'
           npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.secrets.READ_GH_PKGS_NPM_TOKEN}}
 
       - name: Publish to Github Registry
         run: npm publish --workspace=${{ matrix.package.path }} --registry='https://npm.pkg.github.com/'
@@ -175,7 +172,7 @@ jobs:
 
       - name: Rollback Release if publish failed
         if: failure()
-        uses: author/action-rollback@stable
+        uses: author/action-rollback@v1
         with:
           tag: ${{ matrix.package.tag }}
           delete_orphan_tag: true
