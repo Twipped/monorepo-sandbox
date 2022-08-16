@@ -159,7 +159,7 @@ jobs:
           npm config set '@zenbusiness:registry' 'https://npm.pkg.github.com/'
           npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
-          NODE_AUTH_TOKEN: ${{secrets.secrets.GH_PUBLISH_TOKEN_ADM}}
+          NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
 
       - run: find . -path "packages/*" -type d -exec cp .npmrc {} \;
 
