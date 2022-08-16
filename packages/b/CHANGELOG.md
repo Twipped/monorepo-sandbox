@@ -12,6 +12,12 @@
   * dependencies
     * @zenbusiness/monorepo-sandbox-a bumped from ^2.0.0 to ^2.0.1
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @zenbusiness/monorepo-sandbox-a bumped from ^2.0.1 to ^2.0.2
+
 ## [2.0.0](https://github.com/zenbusiness/monorepo-sandbox/compare/monorepo-sandbox-b-v1.0.1...monorepo-sandbox-b-v2.0.0) (2022-08-16)
 
 
