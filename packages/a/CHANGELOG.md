@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/zenbusiness/monorepo-sandbox/compare/monorepo-sandbox-a-v2.0.2...monorepo-sandbox-a-v2.0.3) (2022-08-18)
+
+
+### Bug Fixes
+
+* **a:** Trigger canary release ([657a88f](https://github.com/zenbusiness/monorepo-sandbox/commit/657a88f572607b880d9e502ee503c56717657218))
+
 ## [2.0.2](https://github.com/zenbusiness/monorepo-sandbox/compare/monorepo-sandbox-a-v2.0.1...monorepo-sandbox-a-v2.0.2) (2022-08-16)
 
 
