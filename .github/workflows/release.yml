@@ -50,8 +50,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: lts/*
           registry-url: https://npm.pkg.github.com/
+          cache: 'npm'
+          cache-dependency-path: subdir/package-lock.json
 
       - name: Install dependencies from npm
         run: npm ci
