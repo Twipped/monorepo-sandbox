@@ -1,5 +1,0 @@
-{
-  "extends": [
-    "@twipped/eslint-config/node-cjs"
-  ]
-}
