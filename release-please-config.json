@@ -3,6 +3,8 @@
     "packages/b": {},
     "packages/a": {}
   },
+  "always-link-local": true,
+  "separate-pull-requests": true,
   "plugins": ["node-workspace"],
   "bootstrap-sha": "801db501a20e9dd63e26d91584672df438b73a52"
 }
