@@ -11,29 +11,30 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    permissions:
-      packages: read
-      contents: read
-      pull-requests: read
-    env:
-      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+    strategy:
+      matrix:
+        node-version: [lts/-1, lts/*, latest]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          registry-url: https://npm.pkg.github.com/
-          cache: 'npm'
-          cache-dependency-path: subdir/package-lock.json
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: npm
+        cache-dependency-path: '**/package-lock.json'
 
-      - name: Install dependencies from npm
-        run: npm ci
+    - name: Install Dependencies
+      run: npm ci
 
-      - name: Build packages
-        run: npm run build
+    - name: Build
+      run: npm run build --if-present
 
-      - name: Test packages
-        run: npm run test
+    - name: Lint
+      run: npm run lint --if-present
+
+    - name: Test
+      run: npm run test --if-present
