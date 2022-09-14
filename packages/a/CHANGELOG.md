@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.6](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-a-v3.0.5...monorepo-test-a-v3.0.6) (2022-09-14)
+
+
+### Bug Fixes
+
+* **a:** bump ([3ad73be](https://github.com/Twipped/monorepo-sandbox/commit/3ad73bedf20f9ad0eda279b107202f362b1b958b))
+
 ## [3.0.5](https://github.com/Twipped/monorepo-sandbox/compare/monorepo-test-a-v3.0.4...monorepo-test-a-v3.0.5) (2022-09-13)
 
 
