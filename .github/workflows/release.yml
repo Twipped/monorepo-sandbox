@@ -94,11 +94,14 @@ jobs:
           node-version: lts/*
           cache: npm
           cache-dependency-path: '**/package-lock.json'
+          registry-url: 'https://npm.pkg.github.com'
 
-      - name: Install dependencies from npm
-        run: npm ci
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build packages
+      - name: Build all packages
         run: npm run build --if-present
 
       - name: Build docs
