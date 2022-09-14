@@ -15,6 +15,7 @@
  * @category Types
  */
 export const DEFAULT = Symbol('DEFAULT');
+
 export const isDefault = (input) => input === DEFAULT;
 
 /**
