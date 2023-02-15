@@ -13,8 +13,7 @@
     "node": ">=16.13.0"
   },
   "workspaces": [
-    "./packages/*",
-    "jest-resolver"
+    "./packages/*"
   ],
   "publishConfig": {
     "registry": "https://us-central1-npm.pkg.dev/zen-dev-166315/zen-npm-packages/"
