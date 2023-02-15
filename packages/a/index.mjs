@@ -394,7 +394,7 @@ export function lt (a, b) {
  * @returns {number}
  * @category Data
  */
-export default function hash (input) {
+export function hash (input) {
   if (!input) return 0;
 
   if (!isString(input)) {

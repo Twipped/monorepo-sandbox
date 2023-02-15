@@ -17,8 +17,14 @@
     "node": "^16.13.0"
   },
   "exports": {
-    "import": "./index.mjs",
-    "require": "./index.cjs"
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.cjs"
+    },
+    "./subpath": {
+      "import": "./subpath/subpath.mjs",
+      "require": "./subpath/subpath.cjs"
+    }
   },
   "repository": {
     "type": "git",

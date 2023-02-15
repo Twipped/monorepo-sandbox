@@ -2,6 +2,10 @@ const {
   isObject,
 } = require('@twipped/monorepo-test-a');
 
+
+// eslint-disable-next-line no-unused-vars
+const SubPath = require('@twipped/monorepo-test-a/subpath');
+
 /**
  * Combines multiple objects into one, recursively.
  *

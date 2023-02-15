@@ -430,7 +430,7 @@ function hash (input) {
 }
 
 exports.DEFAULT = DEFAULT;
-exports["default"] = hash;
+exports.hash = hash;
 exports.gt = gt;
 exports.isArray = isArray;
 exports.isBoolean = isBoolean;
