@@ -54,6 +54,12 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.changes.outputs.packages) }}
+
+    env:
+      PROJECT_ID: zen-dev-166315
+      GAR_LOCATION: us-central1
+      GAR_REPOSITORY: zen-npm-packages
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -106,11 +112,11 @@ jobs:
           NAME=$(npm pkg get name --workspace ${{ matrix.package }} --json | jq '.[] | split("/") | .[-1]')
           echo "name=${NAME}" >> $GITHUB_OUTPUT
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          prerelease: true
-          name: "${{ steps.package.outputs.name }}: ${{ github.ref_name }}"
+    # Publish to GAR
+
+      - name: Publish to ZenBusiness Google Cloud npm artifact registry
+        run: |
+          npm publish --tag "${{ github.ref_name }}" --workspace=${{ matrix.package.path }}
 
     # Publish to Github Registry
 
@@ -131,14 +137,11 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           NPM_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
           NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
-      
-    # Builds Finished
+    
+    # Cut release
 
-      - name: Rollback Release if publish failed
-        if: failure()
-        uses: author/action-rollback@master
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          tag: ${{ github.ref_name }}
-          delete_orphan_tag: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          name: "${{ steps.package.outputs.name }}: ${{ github.ref_name }}"
