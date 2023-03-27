@@ -34,9 +34,6 @@
   "publishConfig": {
     "@twipped:registry": "https://npm.pkg.github.com"
   },
-  "release": {
-    "extends": "@twipped/semrel-config"
-  },
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
@@ -54,7 +51,6 @@
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@twipped/eslint-config": "^7.3.2",
-    "@twipped/semrel-config": "^1.0.0",
     "eslint": "^8.12.0",
     "jest": "^28.1.3",
     "jsdoc-to-markdown": "^7.1.1",
