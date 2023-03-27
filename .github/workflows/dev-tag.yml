@@ -1,0 +1,106 @@
+name: "Dev Tagged Release"
+
+on:
+  push:
+    tags:
+      - dev-**
+
+permissions:
+  packages: write
+  contents: write
+  pull-requests: write
+  id-token: write
+
+
+jobs:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      # Expose matched filters as job 'packages' output variable
+      changes: ${{ steps.filter.outputs.changes }}
+      packages: ${{ steps.transform.outputs.packages }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - uses: henrycpainter/paths-filter@415a69e0d2e896311e7b6252c4c46ac71ae7a4ab
+      id: filter
+      with:
+        base: ${{ github.ref }}
+        list-files: shell
+        filters: |
+          changed:
+            - 'packages/**'
+  
+    - name: transform to packages
+      id: transform
+      continue-on-error: false
+      run: |
+        echo '${{ github.ref_name }}'
+        folders=()
+        for f in ${{ steps.filter.outputs.changed_files }}; \
+          do \
+            echo "Adding $(dirname $f) to folders"; \
+            folders+=($(dirname $f)); \
+        done
+        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        echo "packages=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
+
+  dev-release:
+    needs: changes
+    name: "Cut dev releases"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.changes.outputs.packages) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+          registry-url: 'https://npm.pkg.github.com'
+
+    # Install and build
+
+      - name: Install dependencies from npm
+        run: npm ci --workspace=${{ matrix.package }}
+
+      - name: Build packages
+        run: npm run build --workspace=${{ matrix.package }} --if-present
+
+      - name: Build docs
+        run: npm run docs --workspace=${{ matrix.package }} --if-present
+
+      - id: package
+        name: Get package name.
+        run: |
+          NAME=$(npm pkg get name --workspace ${{ matrix.package }} --json | jq --raw-output '.[] | split("/") | .[-1]')
+          echo "name=${NAME}" >> $GITHUB_OUTPUT
+          echo "preid=$(echo ${{ github.ref_name }} | cut -d- -f2)" >> $GITHUB_OUTPUT
+
+      - name: Bump prerelease version
+        id: version
+        run: |
+          npm version prerelease --workspace=${{ matrix.package }} --preid=${{ steps.package.outputs.preid }} --git-tag-version=false --commit-hooks=false
+          VERSION=$(npm pkg get version --workspace ${{ matrix.package }} --json | jq --raw-output '.[]')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          
+      - name: Publish to Github Registry
+        run: npm publish --tag canary --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    
+    # Cut release
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          name: "${{ steps.package.outputs.name }}: v${{ steps.version.outputs.version }}"
