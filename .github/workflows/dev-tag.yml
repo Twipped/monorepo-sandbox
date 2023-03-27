@@ -1,0 +1,46 @@
+name: "Dev Tagged Release"
+
+on:
+  push:
+    tags:
+      - dev-**
+
+permissions:
+  packages: write
+  contents: write
+  pull-requests: write
+  id-token: write
+
+
+jobs:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      # Expose matched filters as job 'packages' output variable
+      changes: ${{ steps.filter.outputs.changes }}
+      packages: ${{ steps.transform.outputs.packages }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - uses: henrycpainter/paths-filter@415a69e0d2e896311e7b6252c4c46ac71ae7a4ab
+      id: filter
+      with:
+        base: ${{ github.ref }}
+        filters: |
+          changed:
+            - 'packages/**'
+  
+    - name: transform to packages
+      id: transform
+      continue-on-error: false
+      run: |
+        folders=()
+        for f in ${{ steps.filter.outputs.changed_files }}; \
+          do \
+            echo "Adding $(dirname $f) to folders"; \
+            folders+=($(dirname $f)); \
+        done
+        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        echo "packages=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
