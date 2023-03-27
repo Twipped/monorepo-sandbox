@@ -1,0 +1,144 @@
+name: "Dev Tagged Release"
+
+on:
+  push:
+    tags:
+      - dev-**
+
+permissions:
+  packages: write
+  contents: write
+  pull-requests: write
+  id-token: write
+
+
+jobs:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      # Expose matched filters as job 'packages' output variable
+      changes: ${{ steps.filter.outputs.changes }}
+      packages: ${{ steps.transform.outputs.packages }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - uses: henrycpainter/paths-filter@415a69e0d2e896311e7b6252c4c46ac71ae7a4ab
+      id: filter
+      with:
+        base: ${{ github.ref }}
+        list-files: shell
+        filters: |
+          changed:
+            - 'packages/**'
+  
+    - name: transform to packages
+      id: transform
+      continue-on-error: false
+      run: |
+        echo '${{ github.ref_name }}'
+        folders=()
+        for f in ${{ steps.filter.outputs.changed_files }}; \
+          do \
+            echo "Adding $(dirname $f) to folders"; \
+            folders+=($(dirname $f)); \
+        done
+        unique_folders=($(printf "%s\n" "${folders[@]}" | sort -u | tr '\n' ' '))
+        echo "packages=$(jq --compact-output --null-input '$ARGS.positional' --args -- ${unique_folders[@]})" >> $GITHUB_OUTPUT
+
+  dev-release:
+    needs: changes
+    name: "Cut dev releases"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ${{ fromJSON(needs.changes.outputs.packages) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+
+    # Authenticate with GCP
+
+      - id: auth
+        name: 'Authenticate to Google Cloud'
+        uses: google-github-actions/auth@v0
+        with:
+          token_format: "access_token"
+          workload_identity_provider: "projects/124977349912/locations/global/workloadIdentityPools/github-actions/providers/github"
+          service_account: "sa-github-actions@zen-dev-166315.iam.gserviceaccount.com"
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      - name: Writeout GAR npmrc
+        run: |
+          gcloud artifacts print-settings npm \
+            --project=${{ env.PROJECT_ID }} \
+            --repository=${{ env.GAR_REPOSITORY }} \
+            --location=${{ env.GAR_LOCATION }} \
+            --scope=@zenbusiness > .npmrc
+          find . -path "packages/*" -type d -exec cp .npmrc {} \;
+
+      - name: Authorize NPM to Publish for Google Cloud
+        run: npx google-artifactregistry-auth
+
+    # Install and build
+
+      - name: Install dependencies from npm
+        run: npm ci --workspace=${{ matrix.package.path }}
+
+      - name: Build packages
+        run: npm run build --workspace=${{ matrix.package.path }} --if-present
+
+      - name: Build docs
+        run: npm run docs --workspace=${{ matrix.package.path }} --if-present
+
+      - id: package
+        name: Get package name.
+        run: |
+          NAME=$(npm pkg get name --workspace ${{ matrix.package }} --json | jq '.[] | split("/") | .[-1]')
+          echo "name=${NAME}" >> $GITHUB_OUTPUT
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          name: "${{ steps.package.outputs.name }}: ${{ github.ref_name }}"
+
+    # Publish to Github Registry
+
+      - run: rm .npmrc
+
+      - name: Configure publishing to ZenBusiness Private Github Packages
+        run: |
+          npm config set '@zenbusiness:registry' 'https://npm.pkg.github.com/'
+          npm config set '//npm.pkg.github.com/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+
+      - run: find . -path "packages/*" -type d -exec cp .npmrc {} \;
+
+      - name: Publish to Github Registry
+        run: npm publish --tag "${{ github.ref_name }}" --workspace=${{ matrix.package }} --registry='https://npm.pkg.github.com/'
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+          NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
+      
+    # Builds Finished
+
+      - name: Rollback Release if publish failed
+        if: failure()
+        uses: author/action-rollback@master
+        with:
+          tag: ${{ github.ref_name }}
+          delete_orphan_tag: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
