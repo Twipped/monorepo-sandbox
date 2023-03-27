@@ -54,6 +54,12 @@ jobs:
     strategy:
       matrix:
         package: ${{ fromJSON(needs.changes.outputs.packages) }}
+
+    env:
+      PROJECT_ID: zen-dev-166315
+      GAR_LOCATION: us-central1
+      GAR_REPOSITORY: zen-npm-packages
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -92,25 +98,29 @@ jobs:
     # Install and build
 
       - name: Install dependencies from npm
-        run: npm ci --workspace=${{ matrix.package.path }}
+        run: npm ci --workspace=${{ matrix.package }}
 
       - name: Build packages
-        run: npm run build --workspace=${{ matrix.package.path }} --if-present
+        run: npm run build --workspace=${{ matrix.package }} --if-present
 
       - name: Build docs
-        run: npm run docs --workspace=${{ matrix.package.path }} --if-present
+        run: npm run docs --workspace=${{ matrix.package }} --if-present
 
       - id: package
         name: Get package name.
         run: |
           NAME=$(npm pkg get name --workspace ${{ matrix.package }} --json | jq '.[] | split("/") | .[-1]')
           echo "name=${NAME}" >> $GITHUB_OUTPUT
+          echo "preid=$(echo ${{ github.ref_name }} | cut -d- -f2)" >> $GITHUB_OUTPUT
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          prerelease: true
-          name: "${{ steps.package.outputs.name }}: ${{ github.ref_name }}"
+      - name: Bump prerelease version
+        run: npm version prerelease --workspace=${{ matrix.package }} --preid=${{ github.ref_name }} --git-tag-version=false --commit-hooks=false
+
+    # Publish to GAR
+
+      - name: Publish to ZenBusiness Google Cloud npm artifact registry
+        run: |
+          npm publish --tag canary --workspace=${{ matrix.package }}
 
     # Publish to Github Registry
 
@@ -131,14 +141,11 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           NPM_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
           NODE_AUTH_TOKEN: ${{secrets.GH_PUBLISH_TOKEN_ADM}}
-      
-    # Builds Finished
+    
+    # Cut release
 
-      - name: Rollback Release if publish failed
-        if: failure()
-        uses: author/action-rollback@master
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          tag: ${{ github.ref_name }}
-          delete_orphan_tag: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          name: "${{ steps.package.outputs.name }}: ${{ github.ref_name }}"
