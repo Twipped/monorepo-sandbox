@@ -10,7 +10,7 @@
     "url": "http://github.com/twipped/monorepo-sandbox"
   },
   "engines": {
-    "node": ">=16.13.0"
+    "node": ">=20.9.0"
   },
   "workspaces": [
     "./packages/*"
@@ -18,17 +18,11 @@
   "publishConfig": {
     "@twipped:registry": "https://npm.pkg.github.com"
   },
-  "release": {
-    "extends": "@twipped/semrel-config"
-  },
   "scripts": {
     "lint": "eslint packages/",
     "test": "npm run test --workspaces --if-present",
     "docs": "npm run docs --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
     "prepublishOnly": "echo \"Error: 'npm publish' is not supported on this repository, use 'npm run release'.\" && exit 1"
-  },
-  "devDependencies": {
-    "release-please": "^13.19.8"
   }
 }

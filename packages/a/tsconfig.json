@@ -1,0 +1,21 @@
+{
+  // Change this to match your project
+  "include": ["src/**/*.js"],
+  "exclude": ["src/**/*.test.js"],
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "jsx": "react-jsxdev",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "sourceMap": false,
+    "declaration": true,
+    "declarationMap": false,
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "noErrorTruncation": true,
+    "removeComments": true,
+    "esModuleInterop": true
+  }
+}

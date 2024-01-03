@@ -1,29 +1,51 @@
 {
-  "name": "@twipped/monorepo-test-a",
+  "name": "@example/monorepo-test-a",
   "version": "3.0.6",
   "description": "First workspace test package",
-  "main": "index.js",
+  "main": "dist/index.cjs",
   "author": "Jocelyn Badgley <jocelyn.badgley@twipped.com>",
   "license": "UNLICENSED",
   "scripts": {
-    "style": "npm run lint-fix",
-    "lint": "eslint --ext js,cjs,mjs .",
-    "lint-fix": "eslint --ext js,cjs,mjs --fix .",
+    "build": "rimraf dist/* && npm run build:mjs && npm run build:cjs && npm run build:types",
+    "build:cjs": "babel src --out-dir dist --out-file-extension .cjs --ignore '**/*.test.js' --ignore '**/__test__/*'",
+    "build:mjs": "ESM=1 babel src --out-dir dist --out-file-extension .mjs --ignore '**/*.test.js' --ignore '**/__test__/*'",
+    "build:types": "tsc --emitDeclarationOnly",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
     "test": "npm run lint && npm run test-unit",
-    "test-unit": "NODE_ENV=test jest --coverage --passWithNoTests",
-    "build": "rollup -c"
+    "test-unit": "NODE_ENV=test jest",
+    "test-watch": "NODE_ENV=test jest --watch",
+    "test-types": "tsc --noEmit --checkJs"
   },
+  "type": "module",
   "engines": {
-    "node": "^16.13.0"
+    "node": "^18.12.0 || ^20.9.0"
   },
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./index.mjs",
-      "require": "./index.cjs"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "webpack": "./src/index.js"
     },
-    "./subpath": {
-      "import": "./subpath/subpath.mjs",
-      "require": "./subpath/subpath.cjs"
+    "./MockProvider": {
+      "import": "./dist/MockProvider.mjs",
+      "require": "./dist/MockProvider.cjs",
+      "webpack": "./src/MockProvider.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "": [
+        "./dist/index.d.ts"
+      ],
+      "MockProvider": [
+        "./dist/MockProvider.d.ts"
+      ],
+      "dist/*": [
+        "./dist/*"
+      ]
     }
   },
   "repository": {
@@ -31,29 +53,31 @@
     "url": "git+https://github.com/twipped/monorepo-sandbox.git",
     "directory": "packages/a"
   },
-  "publishConfig": {
-    "@twipped:registry": "https://npm.pkg.github.com"
-  },
   "jest": {
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "testMatch": [
-      "**/__tests__/**/*.js",
       "**/?(*.)+(spec|test).js"
     ],
+    "transform": {
+      "\\.js?$": "babel-jest"
+    },
     "automock": false,
-    "clearMocks": true,
-    "collectCoverage": false,
-    "moduleNameMapper": {
-      "^@twipped/(.*)$": "<rootDir>/../$1/"
-    }
+    "clearMocks": true
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^22.0.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@twipped/eslint-config": "^7.3.2",
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.7",
+    "@babel/preset-react": "^7.23.3",
+    "@types/react": "^18.2.46",
+    "babel-plugin-add-import-extension": "^1.6.0",
     "eslint": "^8.12.0",
-    "jest": "^28.1.3",
-    "jsdoc-to-markdown": "^7.1.1",
-    "rollup": "^2.75.6"
+    "prop-types": "latest",
+    "react": "latest",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
   }
 }

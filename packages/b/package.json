@@ -1,5 +1,5 @@
 {
-  "name": "@twipped/monorepo-test-b",
+  "name": "@example/monorepo-test-b",
   "version": "2.0.6",
   "description": "Second workspace test package",
   "main": "index.js",
@@ -13,40 +13,17 @@
     "test-unit": "NODE_ENV=test jest --coverage --passWithNoTests"
   },
   "engines": {
-    "node": "^16.13.0"
+    "node": "^20.9.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/twipped/monorepo-sandbox.git",
-    "directory": "packages/a"
-  },
-  "publishConfig": {
-    "@twipped:registry": "https://npm.pkg.github.com"
-  },
-  "release": {
-    "extends": "@twipped/semrel-config"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/__tests__/**/*.js",
-      "**/?(*.)+(spec|test).js"
-    ],
-    "automock": false,
-    "clearMocks": true,
-    "collectCoverage": false,
-    "resolver": "../jest-resolver",
-    "moduleNameMapper": {
-      "^@twipped/monorepo-test-(.*)$": "<rootDir>/../$1/"
-    }
+    "directory": "packages/b"
   },
   "devDependencies": {
-    "@twipped/eslint-config": "^7.3.2",
-    "eslint": "^8.12.0",
-    "jest": "^28.1.3",
-    "jsdoc-to-markdown": "^7.1.1"
+    "eslint": "^8.12.0"
   },
   "dependencies": {
-    "@twipped/monorepo-test-a": "^3.0.4"
+    "@example/monorepo-test-a": "^3.0.0"
   }
 }
